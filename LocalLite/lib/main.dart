@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_map/flutter_map.dart' as fm;
+import 'package:latlong2/latlong.dart';
+import 'package:flutter/foundation.dart';
 
-void main() {
+Future<void> main() async{
+  await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
+
+final String googleMapsApiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';    // THIS IS OUR VAIRABLE FOR THE API KEY
+
+final fm.MapController mapController = fm.MapController();
+
+// void main() {
+//   runApp(MyApp());
+// }
 
 // COLOR PALETTE
 const Color green = Color(0xFF60A561);
@@ -68,62 +82,117 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // Map placeholder
+            // Real Google Map
             Container(
               height: MediaQuery.of(context).size.height * 0.35,
               margin: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                image: const DecorationImage(
-                  image: NetworkImage(
-                    "https://upload.wikimedia.org/wikipedia/commons/8/80/Belle_Glade_FL_map.png",
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  // Search bar overlay
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      margin: const EdgeInsets.all(12),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: green.withOpacity(0.75),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.search,
-                              color: darkGreen, size: 24),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: "Search...",
-                                hintStyle: TextStyle(color: white),
+                child: Stack(
+                  children: [
+                    // Platform-specific map
+                    Positioned.fill(
+                      child: kIsWeb
+                          ? fm.FlutterMap(
+                              options: fm.MapOptions(
+                                initialCenter: LatLng(26.6845, -80.6676),
+                                initialZoom: 12.0,
                               ),
-                              style: TextStyle(color: white),
+                              children: [
+                                fm.TileLayer(
+                                  urlTemplate:
+                                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                                  subdomains: const ['a', 'b', 'c'],
+                                  userAgentPackageName: 'com.example.flutter_application_1',
+                                ),
+                                fm.MarkerLayer(
+                                  markers: [
+                                    fm.Marker(
+                                      point: LatLng(26.687, -80.670),
+                                      width: 40,
+                                      height: 40,
+                                      child: const Icon(
+                                        Icons.location_on,
+                                        color: Colors.red,
+                                        size: 32,
+                                      ),
+                                    ),
+                                    fm.Marker(
+                                      point: LatLng(26.682, -80.665),
+                                      width: 40,
+                                      height: 40,
+                                      child: const Icon(
+                                        Icons.location_on,
+                                        color: Colors.red,
+                                        size: 32,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : gmaps.GoogleMap(
+                              initialCameraPosition: const gmaps.CameraPosition(
+                                target: gmaps.LatLng(26.6845, -80.6676),
+                                zoom: 12,
+                              ),
+                              markers: {
+                                gmaps.Marker(
+                                  markerId: const gmaps.MarkerId("biz1"),
+                                  position: const gmaps.LatLng(26.687, -80.670),
+                                  infoWindow:
+                                      const gmaps.InfoWindow(title: "Local Coffee Shop"),
+                                ),
+                                gmaps.Marker(
+                                  markerId: const gmaps.MarkerId("biz2"),
+                                  position: const gmaps.LatLng(26.682, -80.665),
+                                  infoWindow:
+                                      const gmaps.InfoWindow(title: "Small Bakery"),
+                                ),
+                              },
                             ),
-                          ),
-                        ],
+                    ),
+
+                    // Search bar overlay
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        margin: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: green.withOpacity(0.75),
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.search, color: darkGreen, size: 24),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Search...",
+                                  hintStyle: TextStyle(color: white),
+                                ),
+                                style: TextStyle(color: white),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-
             // Listings (stationary, screen scrolls instead)
             Expanded(
               child: ListView(
