@@ -1,4 +1,4 @@
-# 🗺️ LocalLite
+# 🗺️ Local Lite
 
 **Local Lite** is a map-based mobile app that uses AI algorithms to discover and showcase small businesses in the user’s vicinity.  
 Its mission is to **“make the invisible visible”** — empowering local and remote communities where many independent vendors (like roadside farm stands, food trucks, or mom-and-pop restaurants) may not have a formal presence online.
