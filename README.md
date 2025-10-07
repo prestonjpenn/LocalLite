@@ -138,7 +138,9 @@ pubspec.yaml            # Project dependencies and assets
 
 ## 👥 Contributors
 
-- **Preston Penn** — Flutter Development & System Integration  
+- **Preston Penn** — Flutter Development & System Integration
+- **Avery Leas** - Front End Development & Marketing Diagrams
+- **Jade Penn** - Front End Development & User Flow
 
 ---
 
